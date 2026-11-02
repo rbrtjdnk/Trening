@@ -100,7 +100,8 @@ nav svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stro
 .hh b{font-size:17px}.hh span{color:var(--mut);font-size:13px;white-space:nowrap}
 .hl{margin:10px 0 12px;padding:0;list-style:none}
 .hl li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:15px}
-.hl li span:last-child{font-weight:700;white-space:nowrap}
+.hl li span:last-child{text-align:right}
+.hl li small{display:block;font-weight:400;color:var(--mut);font-size:13px}
 .acts{display:flex;gap:8px}
 .note{color:var(--mut);font-size:12.5px;text-align:center;margin:18px 10px}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
@@ -327,14 +328,16 @@ const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const today=()=>ymd(new Date());
 function fmtD(s){const [y,m,d]=s.split('-').map(Number);const dt=new Date(y,m-1,d);return['ne','po','ut','st','št','pi','so'][dt.getDay()]+' '+d+'. '+m+'. '+y}
 const srs=n=>n+' '+(n===1?'séria':n>=2&&n<=4?'série':'sérií');
-const sm=(sets,kg)=>srs(sets)+' · max '+fmtN(kg)+' kg';
+const rps=n=>n+' '+(n===1?'opakovanie':n>=2&&n<=4?'opakovania':'opakovaní');
+const sm=(sets,kg,reps)=>srs(sets)+' · max '+fmtN(kg)+' kg'+(reps?' · '+rps(reps):'');
+const smh=(sets,kg,reps)=>`<b>max ${fmtN(kg)} kg${reps?', '+rps(reps):''}</b><small>${srs(sets)}</small>`;
 const fmtN=v=>(Math.round((+v||0)*10)/10).toString().replace('.',',');
 const allEx=()=>EX.map(x=>{const o=S.over[x.id];return o?Object.assign({},x,{n:o.n,g:o.g}):x}).concat(S.custom.map(c=>({id:c.id,n:c.n,g:c.g,a:c.a,custom:1})));
 const exById=id=>allEx().find(x=>x.id===id);
 const sortedW=()=>S.workouts.slice().sort((a,b)=>(b.date.localeCompare(a.date))||((b.ts||0)-(a.ts||0)));
 function hist(exId,skipId){
   const out=[];
-  sortedW().forEach(w=>{if(w.id===skipId)return;w.entries.forEach(e=>{if(e.ex===exId)out.push({date:w.date,sets:e.sets,kg:e.kg})})});
+  sortedW().forEach(w=>{if(w.id===skipId)return;w.entries.forEach(e=>{if(e.ex===exId)out.push({date:w.date,sets:e.sets,kg:e.kg,reps:e.reps||0})})});
   return out; // najnovsie prve
 }
 let toastT;
@@ -379,15 +382,15 @@ function vTrain(){
   d.entries.forEach((e,i)=>{
     const x=exById(e.ex)||{n:'Neznámy cvik',g:''};
     const l=hist(e.ex,d.id)[0];
-    h+=`<div class="card ent"><div class="eh"><div class="th">${art(x)}</div><div class="t"><b>${esc(x.n)}</b><small>${l?'Naposledy: '+sm(l.sets,l.kg):'Zatiaľ bez záznamu'}</small></div><button class="x" data-a="rm" data-i="${i}" aria-label="Odstrániť">×</button></div>
-    <div class="ctl">${stp(i,'sets',e.sets,'Série',1)}${stp(i,'kg',e.kg,'Max. váha (kg)',2.5)}</div></div>`;
+    h+=`<div class="card ent"><div class="eh"><div class="th">${art(x)}</div><div class="t"><b>${esc(x.n)}</b><small>${l?'Naposledy: '+sm(l.sets,l.kg,l.reps):'Zatiaľ bez záznamu'}</small></div><button class="x" data-a="rm" data-i="${i}" aria-label="Odstrániť">×</button></div>
+    <div class="ctl">${stp(i,'sets',e.sets,'Série',1)}${stp(i,'kg',e.kg,'Max. váha (kg)',2.5)}<div style="grid-column:1/-1">${stp(i,'reps',e.reps||0,'Opakovania pri max. váhe',1)}</div></div></div>`;
   });
-  if(!d.entries.length)h+='<div class="hint">Pridaj prvý cvik a zapíš série a maximálnu váhu.</div>';
+  if(!d.entries.length)h+='<div class="hint">Pridaj prvý cvik a zapíš série, maximálnu váhu a počet opakovaní.</div>';
   h+='<button class="add" data-a="pick-open">+ Pridať cvik</button>';
   return h;
 }
 function stp(i,f,v,label,step){
-  return `<div><span class="sl">${label}</span><div class="st"><button data-a="step" data-i="${i}" data-f="${f}" data-d="-${step}">−</button><input inputmode="${f==='kg'?'decimal':'numeric'}" data-in="${f}" data-i="${i}" value="${fmtN(v)}"><button data-a="step" data-i="${i}" data-f="${f}" data-d="${step}">+</button></div></div>`;
+  return `<div><span class="sl">${label}</span><div class="st"><button data-a="step" data-i="${i}" data-f="${f}" data-d="-${step}">−</button><input inputmode="${f==='kg'?'decimal':'numeric'}" data-in="${f}" data-i="${i}" value="${f==='reps'&&!v?'':fmtN(v)}" ${f==='reps'?'placeholder="–"':''}><button data-a="step" data-i="${i}" data-f="${f}" data-d="${step}">+</button></div></div>`;
 }
 
 function grid(act,markAdded){
@@ -429,7 +432,7 @@ function vHist(){
   }else if(!ws.length)h+='<div class="hint">Zatiaľ nemáš žiadny uložený tréning.</div>';
   ws.forEach(w=>{
     h+=`<div class="card hc"><div class="hh"><b>${esc(w.name||'Tréning')}</b><span>${fmtD(w.date)}</span></div><ul class="hl">`;
-    w.entries.forEach(e=>{const x=exById(e.ex);h+=`<li><span>${esc(x?x.n:'Neznámy cvik')}</span><span>${sm(e.sets,e.kg)}</span></li>`});
+    w.entries.forEach(e=>{const x=exById(e.ex);h+=`<li><span>${esc(x?x.n:'Neznámy cvik')}</span><span>${smh(e.sets,e.kg,e.reps)}</span></li>`});
     h+=`</ul><div class="acts"><button class="btn sm" data-a="hedit" data-id="${w.id}">Upraviť</button><button class="btn sm dng" data-a="hdel" data-id="${w.id}">${confirmK==='del:'+w.id?'Naozaj zmazať?':'Zmazať'}</button></div></div>`;
   });
   if(window.STANDALONE)h+=`<div class="card" style="margin-top:14px"><b>Záloha dát</b><div style="color:var(--mut);font-size:13px;margin:4px 0 10px">Dáta sú uložené len v tomto telefóne. Raz za čas si ich ulož do súboru.</div><div class="acts"><button class="btn sm" data-a="export">Stiahnuť zálohu</button><button class="btn sm" data-a="import">Obnoviť zo zálohy</button></div><input type="file" id="imp" accept=".json,application/json" style="display:none"></div>`;
@@ -462,10 +465,10 @@ function renderSheet(){
     const pts=hs.slice(0,12).reverse();
     body=`<div class="ph"><h3>${esc(x.n)}</h3><button class="x" data-a="close" aria-label="Zavrieť">×</button></div>
     <div class="big">${art(x)}</div>
-    <div class="kv"><div><b>${pr!==null?fmtN(pr)+' kg':'–'}</b><span>osobný rekord</span></div><div><b>${hs.length}</b><span>tréningov</span></div><div><b>${hs.length?fmtN(hs[0].kg)+' kg':'–'}</b><span>naposledy${hs.length?', '+srs(hs[0].sets):''}</span></div></div>
+    <div class="kv"><div><b>${pr!==null?fmtN(pr)+' kg':'–'}</b><span>osobný rekord</span></div><div><b>${hs.length}</b><span>tréningov</span></div><div><b>${hs.length?fmtN(hs[0].kg)+' kg':'–'}</b><span>naposledy${hs.length?', '+srs(hs[0].sets)+(hs[0].reps?', '+rps(hs[0].reps):''):''}</span></div></div>
     <p style="margin:0 0 12px"><span class="pill">${esc(x.g)}</span></p>
     ${chart(pts)}
-    ${hs.length?'<ul class="hl card" style="padding:4px 14px;margin:0 0 12px">'+hs.slice(0,8).map(h=>`<li><span>${fmtD(h.date)}</span><span>${sm(h.sets,h.kg)}</span></li>`).join('')+'</ul>':'<div class="hint">Tento cvik si ešte nezapísal.</div>'}
+    ${hs.length?'<ul class="hl card" style="padding:4px 14px;margin:0 0 12px">'+hs.slice(0,8).map(h=>`<li><span>${fmtD(h.date)}</span><span>${smh(h.sets,h.kg,h.reps)}</span></li>`).join('')+'</ul>':'<div class="hint">Tento cvik si ešte nezapísal.</div>'}
     <button class="btn pri" data-a="add-from-ex" data-id="${x.id}">Pridať do tréningu</button>
     <button class="btn" style="margin-top:8px" data-a="edit-open" data-id="${x.id}">Upraviť cvik</button>
     ${x.custom?`<button class="btn dng" style="margin-top:8px" data-a="del-ex" data-id="${x.id}">${confirmK==='ex:'+x.id?'Naozaj odstrániť cvik?':'Odstrániť vlastný cvik'}</button>`:''}`;
@@ -490,7 +493,7 @@ function renderSheet(){
 function addEntry(id){
   const d=S.draft;if(!d||d.entries.some(e=>e.ex===id))return false;
   const l=hist(id,d.id)[0];
-  d.entries.push({ex:id,sets:l?l.sets:3,kg:l?l.kg:0});
+  d.entries.push({ex:id,sets:l?l.sets:3,kg:l?l.kg:0,reps:l&&l.reps?l.reps:5});
   persistDraft();return true;
 }
 function startDraft(name,date){S.draft={date:date||today(),name:name||'',entries:[]};persistDraft()}
@@ -499,9 +502,9 @@ const act={
   start(){const n=$('#nn').value.trim(),dt=$('#nd').value||today();startDraft(n,dt);render()},
   repeat(b){const w=S.workouts.find(x=>x.id===b.dataset.id);if(!w)return;S.draft={date:today(),name:w.name,entries:w.entries.map(e=>({...e}))};persistDraft();render();window.scrollTo(0,0)},
   step(b){const e=S.draft.entries[+b.dataset.i],f=b.dataset.f,d=+b.dataset.d;
-    e[f]=f==='sets'?Math.max(1,Math.round(e[f]+d)):Math.max(0,Math.round((e[f]+d)*10)/10);
+    e[f]=f==='kg'?Math.max(0,Math.round(((e[f]||0)+d)*10)/10):Math.max(f==='sets'?1:0,Math.round((e[f]||0)+d));
     persistDraft();
-    const inp=document.querySelector(`input[data-in="${f}"][data-i="${b.dataset.i}"]`);if(inp)inp.value=fmtN(e[f])},
+    const inp=document.querySelector(`input[data-in="${f}"][data-i="${b.dataset.i}"]`);if(inp)inp.value=(f==='reps'&&!e[f])?'':fmtN(e[f])},
   rm(b){S.draft.entries.splice(+b.dataset.i,1);persistDraft();render()},
   'pick-open'(){SH={t:'pick'};EXF={q:'',g:'Všetko'};render()},
   pick(b){if(addEntry(b.dataset.id)){$('#gridbox').innerHTML=grid('pick',true);const bt=document.querySelector('.ph .btn');if(bt)bt.textContent='Hotovo ('+S.draft.entries.length+')';renderBar();toast('Pridané')}},
@@ -534,7 +537,7 @@ const act={
   'del-ex'(b){if(confirmK!=='ex:'+b.dataset.id){confirmK='ex:'+b.dataset.id;renderSheet();return}
     S.custom=S.custom.filter(c=>c.id!==b.dataset.id);persistCustom();confirmK=null;SH=null;render()},
   save(){const d=S.draft;if(!d||!d.entries.length)return;
-    const w={id:d.id||'w-'+Date.now(),date:d.date||today(),name:d.name.trim(),entries:d.entries.map(e=>({ex:e.ex,sets:e.sets,kg:e.kg})),ts:Date.now()};
+    const w={id:d.id||'w-'+Date.now(),date:d.date||today(),name:d.name.trim(),entries:d.entries.map(e=>({ex:e.ex,sets:e.sets,kg:e.kg,reps:e.reps||0})),ts:Date.now()};
     const i=S.workouts.findIndex(x=>x.id===w.id);if(i>=0)S.workouts[i]=w;else S.workouts.push(w);
     persistWorkout(w);S.draft=null;persistDraft();tab='hist';confirmK=null;render();window.scrollTo(0,0);toast('Tréning uložený ✓')},
   discard(){if(confirmK!=='discard'){confirmK='discard';renderBar();return}
@@ -573,7 +576,7 @@ document.addEventListener('input',ev=>{
   else{
     const e=d.entries[+t.dataset.i];if(!e)return;
     let v=parseFloat(String(t.value).replace(',','.'));if(!isFinite(v)||v<0)v=0;
-    e[k]=k==='sets'?Math.round(v):v;
+    e[k]=(k==='sets'||k==='reps')?Math.round(v):v;
   }
   persistDraft();
 });
