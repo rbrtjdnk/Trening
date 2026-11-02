@@ -70,7 +70,7 @@ nav svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stro
 .xn{font-weight:600;font-size:14px;line-height:1.25}
 .xg{font-size:12px;color:var(--mut);margin-top:2px}
 .ck{position:absolute;top:12px;right:14px;background:var(--ok);color:#fff;font-style:normal;width:22px;height:22px;border-radius:50%;text-align:center;line-height:22px;font-size:13px}
-.th svg{width:100%;height:100%;display:block}
+.th svg,.big svg{width:100%;height:100%;display:block}
 .body line{stroke:var(--ink);stroke-width:3.4;stroke-linecap:round}
 .head{fill:var(--card);stroke:var(--ink);stroke-width:3}
 .pl{fill:var(--acc)}
@@ -121,7 +121,7 @@ select.tx{appearance:auto}
 </div></nav>
 <div class="toast" id="toast"></div>
 
-<script>window.STANDALONE=true;window.SEED={"workouts": [{"id": "w-1793620341025", "date": "2026-11-02", "name": "", "entries": [{"ex": "mrtvy", "kg": 90, "sets": 3}], "ts": 1793620341025}], "custom": [{"g": "Ramená", "id": "c-1793611245308", "n": "Dvíhanie kladky s lanom"}, {"g": "Ramená", "id": "c-1793611273231", "n": "Príťahy činky k brade"}, {"g": "Ramená", "id": "c-1793619786921", "n": "Rozpažovanie s jemným predklonom"}, {"g": "Ramená", "id": "c-1793619800587", "n": "Rozpažovanie v hlbokom predklone"}, {"g": "Chrbát", "id": "c-1793619827924", "n": "Príťahy k bruchu na úzko"}, {"g": "Ruky", "id": "c-1793620061406", "n": "Bicepsový zdvih na scottovej lavičke"}, {"g": "Ruky", "id": "c-1793620085796", "n": "Tricepsovy tlak na rovnej lavici s veľkou tyčou"}, {"g": "Hruď", "id": "c-1793626534979", "n": "Tlaky na šikmej lavičke"}, {"g": "Hruď", "id": "c-1793626552064", "n": "Rozpažovanie na lavičke"}, {"g": "Hruď", "id": "c-1793626577812", "n": "Predpažovanie s kladkami"}, {"g": "Nohy", "id": "c-1793626627305", "n": "Bicepsový zdvih s tyčou"}, {"g": "Brucho", "id": "c-1793626646708", "n": "Dvíhanie nôh na hrazde"}], "over": {"curl": {"g": "Ruky", "n": "Bicepsový zdvih s jednoručkami"}}};</script>
+<script>window.STANDALONE=true;window.SEED={"workouts": [{"id": "w-1793620341025", "date": "2026-11-02", "name": "", "entries": [{"ex": "mrtvy", "kg": 90, "sets": 3}], "ts": 1793620341025}], "custom": [{"g": "Ramená", "id": "c-1793611245308", "n": "Dvíhanie kladky s lanom"}, {"g": "Ramená", "id": "c-1793611273231", "n": "Príťahy činky k brade"}, {"g": "Ramená", "id": "c-1793619786921", "n": "Rozpažovanie s jemným predklonom"}, {"g": "Ramená", "id": "c-1793619800587", "n": "Rozpažovanie v hlbokom predklone"}, {"g": "Chrbát", "id": "c-1793619827924", "n": "Príťahy k bruchu na úzko"}, {"g": "Ruky", "id": "c-1793620061406", "n": "Bicepsový zdvih na scottovej lavičke"}, {"g": "Ruky", "id": "c-1793620085796", "n": "Tricepsovy tlak na rovnej lavici s veľkou tyčou"}, {"g": "Hruď", "id": "c-1793626534979", "n": "Tlaky na šikmej lavičke"}, {"g": "Hruď", "id": "c-1793626552064", "n": "Rozpažovanie na lavičke"}, {"g": "Hruď", "id": "c-1793626577812", "n": "Predpažovanie s kladkami"}, {"g": "Brucho", "id": "c-1793626646708", "n": "Dvíhanie nôh na hrazde"}, {"g": "Ruky", "id": "c-1793626916789", "n": "Bicepsový zdvih s tyčou"}, {"g": "Nohy", "id": "c-1793629343155", "n": "Predkopávanie"}, {"g": "Nohy", "id": "c-1793629353775", "n": "Zakopávanie na lavičke"}, {"g": "Nohy", "id": "c-1793629378368", "n": "Drepy na stroji pod uhlom"}, {"g": "Chrbát", "id": "c-1793629427938", "n": "Príťahy s opretou tyčou k bruchu"}, {"g": "Hruď", "id": "c-1793629453438", "n": "Kliky na bradlách"}, {"g": "Ruky", "id": "c-1793629504199", "n": "Tricepsovy zdvih v predklone"}], "over": {"curl": {"g": "Ruky", "n": "Bicepsový zdvih s jednoručkami"}}};</script>
 <script>
 /* ---------- ilustracie cvikov (jednoduche postavicky) ---------- */
 const P=(x,y,r=5)=>`<circle class="pl" cx="${x}" cy="${y}" r="${r}"/>`;
@@ -236,6 +236,30 @@ const HBAR=L(22,8,78,8);
 const LEGRAISE=[
   F([[55,21],[50,28],[50,54],[50,18],[50,8],[50,70],[50,86]],{nf:1,b:HBAR}),
   F([[53,21],[48,28],[50,54],[50,18],[50,8],[68,54],[86,54]],{nf:1,b:HBAR})];
+const BK=`<line class="ln" style="stroke-width:6" x1="33" y1="36" x2="33" y2="66"/>`;
+const LEGM=BK+R(30,68,30,5)+L(44,73,44,90);
+const LEGEXT=[
+  F([[40,30],[38,38],[40,66],[46,52],[50,64],[58,66],[58,88]],{nf:1,b:LEGM,q:P(58,86,4)}),
+  F([[40,30],[38,38],[40,66],[46,52],[50,64],[58,66],[80,62]],{nf:1,b:LEGM,q:P(80,62,4)})];
+const LCB=R(14,60,62,6)+L(20,66,20,90)+L(66,66,66,90);
+const LEGCURL=[
+  F([[16,52],[24,56],[52,56],[24,62],[30,63],[70,57],[88,57]],{nf:1,b:LCB,q:P(88,57,3.5)}),
+  F([[16,52],[24,56],[52,56],[24,62],[30,63],[70,57],[66,38]],{nf:1,b:LCB,q:P(66,38,3.5)})];
+const HK=`<line class="ln" style="stroke-width:6" x1="32" y1="88" x2="16" y2="34"/>`;
+const HACK=[
+  F([[17,28],[21,37],[29,64],[28,50],[33,60],[34,77],[40,90]],{nf:1,b:HK}),
+  F([[25,51],[27,58],[35,85],[34,70],[40,78],[56,72],[44,90]],{nf:1,b:HK})];
+const ANC=`<circle class="ln" cx="8" cy="89" r="3" fill="none"/>`;
+const TBAR=[
+  F([[70,40],[63,47],[40,54],[64,62],[62,76],[48,72],[44,90]],{b:ANC+L(8,89,62,76),q:P(62,76,5)}),
+  F([[70,40],[63,47],[40,54],[54,54],[62,60],[48,72],[44,90]],{b:ANC+L(8,89,62,60),q:P(62,60,5)})];
+const DB2=L(46,50,66,50)+L(66,50,66,90);
+const DIPS=[
+  F([[56,17],[52,25],[44,52],[53,38],[54,50],[46,70],[36,84]],{nf:1,b:DB2}),
+  F([[56,31],[52,39],[44,66],[44,47],[54,50],[46,80],[38,90]],{nf:1,b:DB2})];
+const KICKBACK=[
+  F([[68,40],[62,45],[40,54],[50,47],[50,62],[48,72],[44,90]],{q:P(50,63,3.5)}),
+  F([[68,40],[62,45],[40,54],[50,47],[36,48],[48,72],[44,90]],{q:P(35,48,3.5)})];
 const normN=t=>String(t||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ');
 const ARTBYNAME={
   'dvíhanie kladky s lanom':FRONTRAISE,'predpažovanie na kladke s lanom':FRONTRAISE,
@@ -245,6 +269,9 @@ const ARTBYNAME={
   'bicepsový zdvih na scottovej lavičke':PREACHER,'bicepsovy zdvih na scottovej lavici':PREACHER,
   'tlaky na šikmej lavičke':INCLINE,'rozpažovanie na lavičke':BFLY,'predpažovanie s kladkami':CABFLY,
   'bicepsový zdvih s tyčou':BARCURL,'dvíhanie nôh na hrazde':LEGRAISE,
+  'predkopávanie':LEGEXT,'zakopávanie na lavičke':LEGCURL,'drepy na stroji pod uhlom':HACK,
+  'príťahy s opretou tyčou k bruchu':TBAR,'prítahy s opretou tyčou k bruchu':TBAR,'kliky na bradlách':DIPS,
+  'tricepsový zdvih v predklone':KICKBACK,
   'tricepsový tlak na rovnej lavici s veľkou tyčou':EX.find(x=>x.id==='bench').fr
 };
 const ARTN={};Object.keys(ARTBYNAME).forEach(k=>ARTN[normN(k)]=ARTBYNAME[k]);
@@ -286,6 +313,8 @@ const pad=n=>String(n).padStart(2,'0');
 const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const today=()=>ymd(new Date());
 function fmtD(s){const [y,m,d]=s.split('-').map(Number);const dt=new Date(y,m-1,d);return['ne','po','ut','st','št','pi','so'][dt.getDay()]+' '+d+'. '+m+'. '+y}
+const srs=n=>n+' '+(n===1?'séria':n>=2&&n<=4?'série':'sérií');
+const sm=(sets,kg)=>srs(sets)+' · max '+fmtN(kg)+' kg';
 const fmtN=v=>(Math.round((+v||0)*10)/10).toString().replace('.',',');
 const allEx=()=>EX.map(x=>{const o=S.over[x.id];return o?Object.assign({},x,{n:o.n,g:o.g}):x}).concat(S.custom.map(c=>({id:c.id,n:c.n,g:c.g,a:c.a,custom:1})));
 const exById=id=>allEx().find(x=>x.id===id);
@@ -337,7 +366,7 @@ function vTrain(){
   d.entries.forEach((e,i)=>{
     const x=exById(e.ex)||{n:'Neznámy cvik',g:''};
     const l=hist(e.ex,d.id)[0];
-    h+=`<div class="card ent"><div class="eh"><div class="th">${art(x)}</div><div class="t"><b>${esc(x.n)}</b><small>${l?'Naposledy: '+l.sets+' × '+fmtN(l.kg)+' kg':'Zatiaľ bez záznamu'}</small></div><button class="x" data-a="rm" data-i="${i}" aria-label="Odstrániť">×</button></div>
+    h+=`<div class="card ent"><div class="eh"><div class="th">${art(x)}</div><div class="t"><b>${esc(x.n)}</b><small>${l?'Naposledy: '+sm(l.sets,l.kg):'Zatiaľ bez záznamu'}</small></div><button class="x" data-a="rm" data-i="${i}" aria-label="Odstrániť">×</button></div>
     <div class="ctl">${stp(i,'sets',e.sets,'Série',1)}${stp(i,'kg',e.kg,'Max. váha (kg)',2.5)}</div></div>`;
   });
   if(!d.entries.length)h+='<div class="hint">Pridaj prvý cvik a zapíš série a maximálnu váhu.</div>';
@@ -368,7 +397,7 @@ function vHist(){
   if(!ws.length)h+='<div class="hint">Zatiaľ nemáš žiadny uložený tréning.</div>';
   ws.forEach(w=>{
     h+=`<div class="card hc"><div class="hh"><b>${esc(w.name||'Tréning')}</b><span>${fmtD(w.date)}</span></div><ul class="hl">`;
-    w.entries.forEach(e=>{const x=exById(e.ex);h+=`<li><span>${esc(x?x.n:'Neznámy cvik')}</span><span>${e.sets} × ${fmtN(e.kg)} kg</span></li>`});
+    w.entries.forEach(e=>{const x=exById(e.ex);h+=`<li><span>${esc(x?x.n:'Neznámy cvik')}</span><span>${sm(e.sets,e.kg)}</span></li>`});
     h+=`</ul><div class="acts"><button class="btn sm" data-a="hedit" data-id="${w.id}">Upraviť</button><button class="btn sm dng" data-a="hdel" data-id="${w.id}">${confirmK==='del:'+w.id?'Naozaj zmazať?':'Zmazať'}</button></div></div>`;
   });
   if(window.STANDALONE)h+=`<div class="card" style="margin-top:14px"><b>Záloha dát</b><div style="color:var(--mut);font-size:13px;margin:4px 0 10px">Dáta sú uložené len v tomto telefóne. Raz za čas si ich ulož do súboru.</div><div class="acts"><button class="btn sm" data-a="export">Stiahnuť zálohu</button><button class="btn sm" data-a="import">Obnoviť zo zálohy</button></div><input type="file" id="imp" accept=".json,application/json" style="display:none"></div>`;
@@ -401,10 +430,10 @@ function renderSheet(){
     const pts=hs.slice(0,12).reverse();
     body=`<div class="ph"><h3>${esc(x.n)}</h3><button class="x" data-a="close" aria-label="Zavrieť">×</button></div>
     <div class="big">${art(x)}</div>
-    <div class="kv"><div><b>${pr!==null?fmtN(pr)+' kg':'–'}</b><span>osobný rekord</span></div><div><b>${hs.length}</b><span>tréningov</span></div><div><b>${hs.length?hs[0].sets+' × '+fmtN(hs[0].kg):'–'}</b><span>naposledy</span></div></div>
+    <div class="kv"><div><b>${pr!==null?fmtN(pr)+' kg':'–'}</b><span>osobný rekord</span></div><div><b>${hs.length}</b><span>tréningov</span></div><div><b>${hs.length?fmtN(hs[0].kg)+' kg':'–'}</b><span>naposledy${hs.length?', '+srs(hs[0].sets):''}</span></div></div>
     <p style="margin:0 0 12px"><span class="pill">${esc(x.g)}</span></p>
     ${chart(pts)}
-    ${hs.length?'<ul class="hl card" style="padding:4px 14px;margin:0 0 12px">'+hs.slice(0,8).map(h=>`<li><span>${fmtD(h.date)}</span><span>${h.sets} × ${fmtN(h.kg)} kg</span></li>`).join('')+'</ul>':'<div class="hint">Tento cvik si ešte nezapísal.</div>'}
+    ${hs.length?'<ul class="hl card" style="padding:4px 14px;margin:0 0 12px">'+hs.slice(0,8).map(h=>`<li><span>${fmtD(h.date)}</span><span>${sm(h.sets,h.kg)}</span></li>`).join('')+'</ul>':'<div class="hint">Tento cvik si ešte nezapísal.</div>'}
     <button class="btn pri" data-a="add-from-ex" data-id="${x.id}">Pridať do tréningu</button>
     <button class="btn" style="margin-top:8px" data-a="edit-open" data-id="${x.id}">Upraviť cvik</button>
     ${x.custom?`<button class="btn dng" style="margin-top:8px" data-a="del-ex" data-id="${x.id}">${confirmK==='ex:'+x.id?'Naozaj odstrániť cvik?':'Odstrániť vlastný cvik'}</button>`:''}`;
