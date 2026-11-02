@@ -83,6 +83,19 @@ nav svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stro
 @keyframes fb{0%,32%{opacity:0}50%,82%{opacity:1}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.fa{animation:none}.fb{display:none}}
 .hc{padding:14px}
+.cal{padding:12px 12px 14px}
+.cm{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cm>div{text-align:center}.cm b{display:block;font-size:17px}.cm small{color:var(--mut);font-size:13px}
+.cm .x{font-size:28px;color:var(--acc);width:44px;height:44px}
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
+.cg i{font-style:normal;font-size:12px;color:var(--mut);padding:2px 0 4px}
+.cd{aspect-ratio:1;border:0;border-radius:50%;background:transparent;font-size:15px;color:var(--ink);padding:0}
+.cd.on{background:var(--acc);color:#fff;font-weight:700}
+.cd.two{box-shadow:inset 0 0 0 3px rgba(0,0,0,.28)}
+.cd.td{box-shadow:inset 0 0 0 2px var(--ink)}
+.cd.on.td{box-shadow:inset 0 0 0 2px var(--card),0 0 0 2px var(--ink)}
+.cd.sel{outline:3px solid var(--ink);outline-offset:1px}
+.fl{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 2px 12px;font-size:14px}
 .hh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .hh b{font-size:17px}.hh span{color:var(--mut);font-size:13px;white-space:nowrap}
 .hl{margin:10px 0 12px;padding:0;list-style:none}
@@ -391,10 +404,29 @@ function vEx(){
   return `<h1>Cviky</h1>${filters()}<div id="gridbox">${grid('ex-open',false)}</div><button class="add" style="margin-top:12px" data-a="new-open">+ Vlastný cvik</button>`;
 }
 
+const MON=['Január','Február','Marec','Apríl','Máj','Jún','Júl','August','September','Október','November','December'];
+let CAL=(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()}})(),selDay=null;
+const trn=n=>n+' '+(n===1?'tréning':n>=2&&n<=4?'tréningy':'tréningov');
+function vCal(){
+  const off=(new Date(CAL.y,CAL.m,1).getDay()+6)%7,dim=new Date(CAL.y,CAL.m+1,0).getDate();
+  const cnt={};S.workouts.forEach(w=>{cnt[w.date]=(cnt[w.date]||0)+1});
+  const pre=CAL.y+'-'+pad(CAL.m+1)+'-';let inM=0,cells='';
+  for(let i=0;i<off;i++)cells+='<span></span>';
+  for(let d=1;d<=dim;d++){
+    const k=pre+pad(d),n=cnt[k]||0;if(n)inM++;
+    cells+=`<button class="cd${n?' on':''}${n>1?' two':''}${k===today()?' td':''}${k===selDay?' sel':''}" data-a="cal-day" data-d="${k}">${d}</button>`;
+  }
+  return `<div class="card cal"><div class="cm"><button class="x" data-a="cal-nav" data-d="-1" aria-label="Predošlý mesiac">‹</button><div><b>${MON[CAL.m]} ${CAL.y}</b><small>${trn(inM)}</small></div><button class="x" data-a="cal-nav" data-d="1" aria-label="Ďalší mesiac">›</button></div>
+  <div class="cg">${['Po','Ut','St','Št','Pi','So','Ne'].map(t=>`<i>${t}</i>`).join('')}${cells}</div></div>`;
+}
 function vHist(){
-  const ws=sortedW();
-  let h='<h1>História</h1>';
-  if(!ws.length)h+='<div class="hint">Zatiaľ nemáš žiadny uložený tréning.</div>';
+  let ws=sortedW();
+  let h='<h1>História</h1>'+vCal();
+  if(selDay){
+    ws=ws.filter(w=>w.date===selDay);
+    h+=`<div class="fl"><span>Zobrazený deň: <b>${fmtD(selDay)}</b></span><button class="btn sm" data-a="cal-clear">Zrušiť filter</button></div>`;
+    if(!ws.length)h+='<div class="hint">V tento deň nebol zapísaný žiadny tréning.</div>';
+  }else if(!ws.length)h+='<div class="hint">Zatiaľ nemáš žiadny uložený tréning.</div>';
   ws.forEach(w=>{
     h+=`<div class="card hc"><div class="hh"><b>${esc(w.name||'Tréning')}</b><span>${fmtD(w.date)}</span></div><ul class="hl">`;
     w.entries.forEach(e=>{const x=exById(e.ex);h+=`<li><span>${esc(x?x.n:'Neznámy cvik')}</span><span>${sm(e.sets,e.kg)}</span></li>`});
@@ -493,6 +525,9 @@ const act={
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='trening-zaloha-'+today()+'.json';
     document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast('Záloha stiahnutá')},
   import(){const f=$('#imp');if(f)f.click()},
+  'cal-nav'(b){let m=CAL.m+(+b.dataset.d),y=CAL.y;if(m<0){m=11;y--}if(m>11){m=0;y++}CAL={y,m};render()},
+  'cal-day'(b){selDay=selDay===b.dataset.d?null:b.dataset.d;render()},
+  'cal-clear'(){selDay=null;render()},
   'create-ex'(){const n=$('#cn').value.trim();if(!n){toast('Zadaj názov cviku');$('#cn').focus();return}
     const id='c-'+Date.now();S.custom.push({id,n,g:$('#cg').value});persistCustom();
     const back=SH.back;SH=back?{t:back}:null;render();toast('Cvik vytvorený')},
