@@ -121,7 +121,7 @@ select.tx{appearance:auto}
 </div></nav>
 <div class="toast" id="toast"></div>
 
-<script>window.STANDALONE=true;window.SEED={"workouts": [{"id": "w-1793620341025", "date": "2026-11-02", "name": "", "entries": [{"ex": "mrtvy", "kg": 90, "sets": 3}], "ts": 1793620341025}], "custom": [{"g": "Ramená", "id": "c-1793611245308", "n": "Dvíhanie kladky s lanom"}, {"g": "Ramená", "id": "c-1793611273231", "n": "Príťahy činky k brade"}, {"g": "Ramená", "id": "c-1793619786921", "n": "Rozpažovanie s jemným predklonom"}, {"g": "Ramená", "id": "c-1793619800587", "n": "Rozpažovanie v hlbokom predklone"}, {"g": "Chrbát", "id": "c-1793619827924", "n": "Príťahy k bruchu na úzko"}, {"g": "Ruky", "id": "c-1793620061406", "n": "Bicepsový zdvih na scottovej lavičke"}, {"g": "Ruky", "id": "c-1793620085796", "n": "Tricepsovy tlak na rovnej lavici s veľkou tyčou"}], "over": {}};</script>
+<script>window.STANDALONE=true;window.SEED={"workouts": [{"id": "w-1793620341025", "date": "2026-11-02", "name": "", "entries": [{"ex": "mrtvy", "kg": 90, "sets": 3}], "ts": 1793620341025}], "custom": [{"g": "Ramená", "id": "c-1793611245308", "n": "Dvíhanie kladky s lanom"}, {"g": "Ramená", "id": "c-1793611273231", "n": "Príťahy činky k brade"}, {"g": "Ramená", "id": "c-1793619786921", "n": "Rozpažovanie s jemným predklonom"}, {"g": "Ramená", "id": "c-1793619800587", "n": "Rozpažovanie v hlbokom predklone"}, {"g": "Chrbát", "id": "c-1793619827924", "n": "Príťahy k bruchu na úzko"}, {"g": "Ruky", "id": "c-1793620061406", "n": "Bicepsový zdvih na scottovej lavičke"}, {"g": "Ruky", "id": "c-1793620085796", "n": "Tricepsovy tlak na rovnej lavici s veľkou tyčou"}, {"g": "Hruď", "id": "c-1793626534979", "n": "Tlaky na šikmej lavičke"}, {"g": "Hruď", "id": "c-1793626552064", "n": "Rozpažovanie na lavičke"}, {"g": "Hruď", "id": "c-1793626577812", "n": "Predpažovanie s kladkami"}, {"g": "Nohy", "id": "c-1793626627305", "n": "Bicepsový zdvih s tyčou"}, {"g": "Brucho", "id": "c-1793626646708", "n": "Dvíhanie nôh na hrazde"}], "over": {"curl": {"g": "Ruky", "n": "Bicepsový zdvih s jednoručkami"}}};</script>
 <script>
 /* ---------- ilustracie cvikov (jednoduche postavicky) ---------- */
 const P=(x,y,r=5)=>`<circle class="pl" cx="${x}" cy="${y}" r="${r}"/>`;
@@ -216,6 +216,26 @@ const PAD=`<line class="ln" style="stroke-width:6" x1="52" y1="46" x2="66" y2="6
 const PREACHER=[
   F([[42,32],[40,42],[38,70],[54,52],[63,66],[58,70],[58,90]],{nf:1,b:PAD,q:P(63,66,4)}),
   F([[42,32],[40,42],[38,70],[54,52],[56,38],[58,70],[58,90]],{nf:1,b:PAD,q:P(56,38,4)})];
+const INBENCH=`<line class="ln" style="stroke-width:6" x1="32" y1="80" x2="63" y2="50"/>`+L(34,82,34,90)+L(58,55,58,90);
+const INCLINE=[
+  F([[59,47],[54,52],[34,74],[46,58],[43,48],[18,70],[14,90]],{b:INBENCH,q:P(43,48)}),
+  F([[59,47],[54,52],[34,74],[44,43],[35,35],[18,70],[14,90]],{b:INBENCH,q:P(35,35)})];
+const FLATB=R(26,61,48,6)+L(33,67,33,90)+L(67,67,67,90);
+const FLYLEGS=[[[44,74],[42,90]],[[56,74],[58,90]]];
+const BFLY=[
+  Object.assign(FV([50,50],[50,56],[50,60],[[[37,43],[39,30]],[[63,43],[61,30]]],FLYLEGS,P(39,29,4)+P(61,29,4)),{b:FLATB}),
+  Object.assign(FV([50,50],[50,56],[50,60],[[[27,57],[15,60]],[[73,57],[85,60]]],FLYLEGS,P(14,60,4)+P(86,60,4)),{b:FLATB})];
+const CAB_LEGS=[[[45,73],[42,90]],[[55,73],[58,90]]];
+const CABFLY=[
+  Object.assign(FV([50,21],[50,30],[50,56],[[[27,36],[15,42]],[[73,36],[85,42]]],CAB_LEGS,P(15,42,3)+P(85,42,3)),{b:L(8,2,15,42)+L(92,2,85,42)}),
+  Object.assign(FV([50,21],[50,30],[50,56],[[[33,42],[46,52]],[[67,42],[54,52]]],CAB_LEGS,P(46,52,3)+P(54,52,3)),{b:L(8,2,46,52)+L(92,2,54,52)})];
+const BARCURL=[
+  F([[50,21],[50,28],[49,56],[51,42],[52,56],[50,73],[52,90]],{q:P(52,57,4.5)}),
+  F([[50,21],[50,28],[49,56],[51,42],[60,31],[50,73],[52,90]],{q:P(60,30,4.5)})];
+const HBAR=L(22,8,78,8);
+const LEGRAISE=[
+  F([[55,21],[50,28],[50,54],[50,18],[50,8],[50,70],[50,86]],{nf:1,b:HBAR}),
+  F([[53,21],[48,28],[50,54],[50,18],[50,8],[68,54],[86,54]],{nf:1,b:HBAR})];
 const normN=t=>String(t||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ');
 const ARTBYNAME={
   'dvíhanie kladky s lanom':FRONTRAISE,'predpažovanie na kladke s lanom':FRONTRAISE,
@@ -223,6 +243,8 @@ const ARTBYNAME={
   'rozpažovanie s jemným predklonom':FLYLIGHT,'rozpažovanie v hlbokom predklone':FLYDEEP,
   'príťahy k bruchu na úzko':ROWCABLE,'prítahy k bruchu na úzko':ROWCABLE,
   'bicepsový zdvih na scottovej lavičke':PREACHER,'bicepsovy zdvih na scottovej lavici':PREACHER,
+  'tlaky na šikmej lavičke':INCLINE,'rozpažovanie na lavičke':BFLY,'predpažovanie s kladkami':CABFLY,
+  'bicepsový zdvih s tyčou':BARCURL,'dvíhanie nôh na hrazde':LEGRAISE,
   'tricepsový tlak na rovnej lavici s veľkou tyčou':EX.find(x=>x.id==='bench').fr
 };
 const ARTN={};Object.keys(ARTBYNAME).forEach(k=>ARTN[normN(k)]=ARTBYNAME[k]);
@@ -239,11 +261,16 @@ function art(x){
 const LS='trening-denník-v1';
 let S={workouts:[],custom:[],over:{},draft:null};
 let backend='local',col=null,draftLoaded=false;
-let had=null;try{had=localStorage.getItem(LS)}catch(e){}
-if(!had&&window.SEED)S=Object.assign(S,JSON.parse(JSON.stringify(window.SEED)));
 try{const j=JSON.parse(localStorage.getItem(LS)||'null');if(j)S=Object.assign(S,j)}catch(e){}
 if(!S.over)S.over={};
 const lsSave=()=>{try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}};
+if(window.SEED){
+  S.seeded=S.seeded||[];
+  (SEED.custom||[]).forEach(c=>{if(!S.seeded.includes(c.id)){S.seeded.push(c.id);if(!S.custom.some(x=>x.id===c.id))S.custom.push(Object.assign({},c))}});
+  Object.keys(SEED.over||{}).forEach(k=>{const key='over:'+k;if(!S.seeded.includes(key)){S.seeded.push(key);if(!S.over[k])S.over[k]=Object.assign({},SEED.over[k])}});
+  (SEED.workouts||[]).forEach(w=>{if(!S.seeded.includes(w.id)){S.seeded.push(w.id);if(!S.workouts.some(x=>x.id===w.id))S.workouts.push(Object.assign({},w))}});
+  lsSave();
+}
 const chain={};
 function q(key,fn){chain[key]=(chain[key]||Promise.resolve()).then(fn).catch(e=>console.warn(e))}
 let dT=null;
