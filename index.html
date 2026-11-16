@@ -316,9 +316,63 @@ const chain={};
 function q(key,fn){chain[key]=(chain[key]||Promise.resolve()).then(fn).catch(e=>console.warn(e))}
 let dT=null;
 function persistDraft(){lsSave();if(!col)return;clearTimeout(dT);dT=setTimeout(()=>q('draft',()=>S.draft?col.doc('draft').set({d:S.draft}):col.doc('draft').delete()),700)}
-function persistWorkout(w){lsSave();if(col)q(w.id,()=>col.doc(w.id).set(w))}
-function removeWorkout(id){lsSave();if(col)q(id,()=>col.doc(id).delete())}
-function persistCustom(){lsSave();if(col)q('custom',()=>col.doc('custom').set({items:S.custom,over:S.over}))}
+function persistWorkout(w){lsSave();syncSoon();if(col)q(w.id,()=>col.doc(w.id).set(w))}
+function removeWorkout(id){lsSave();syncSoon();if(col)q(id,()=>col.doc(id).delete())}
+function persistCustom(){lsSave();syncSoon();if(col)q('custom',()=>col.doc('custom').set({items:S.custom,over:S.over}))}
+
+/* ---------- synchronizacia zalohy do sukromneho GitHub repozitara ---------- */
+// Po kazdej zmene posle celu zalohu do <repo>/data/zaloha.json. Token zostava len v tomto prehliadaci.
+const SYNC_LS='trening-sync-v1',SYNC_PATH='data/zaloha.json';
+let SY={repo:'rbrtjdnk/Trening-data',token:'',last:0,err:''},syT=null,syBusy=false,syAgain=false;
+try{Object.assign(SY,JSON.parse(localStorage.getItem(SYNC_LS)||'{}'))}catch(e){}
+const sySave=()=>{try{localStorage.setItem(SYNC_LS,JSON.stringify(SY))}catch(e){}};
+function syncSoon(){if(!window.STANDALONE||!SY.token)return;clearTimeout(syT);syT=setTimeout(syncNow,1500)}
+function b64(s){const u=new TextEncoder().encode(s);let b='';for(let i=0;i<u.length;i+=0x8000)b+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(b)}
+async function syncNow(manual){
+  if(!SY.token||!SY.repo)return;
+  if(syBusy){syAgain=true;return}
+  syBusy=true;
+  const url='https://api.github.com/repos/'+SY.repo.split('/').map(encodeURIComponent).join('/')+'/contents/'+SYNC_PATH;
+  const H={'Authorization':'Bearer '+SY.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
+  const body=JSON.stringify({v:1,updated:new Date().toISOString(),workouts:S.workouts,custom:S.custom,over:S.over},null,1);
+  const msg=st=>st===401?'Neplatný alebo expirovaný kľúč.':st===403?'Kľúč nemá právo zápisu (Contents: Read and write).':st===404?'Repozitár sa nenašiel alebo k nemu kľúč nemá prístup.':'Chyba GitHubu ('+st+').';
+  try{
+    for(let attempt=0;attempt<2;attempt++){
+      // Zisti sha existujuceho suboru (pri prvom zapise subor neexistuje).
+      const g=await fetch(url,{headers:H,cache:'no-store'});
+      let sha;
+      if(g.ok)sha=(await g.json()).sha;else if(g.status!==404)throw new Error(msg(g.status));
+      const p=await fetch(url,{method:'PUT',headers:H,body:JSON.stringify({message:'Záloha '+today(),content:b64(body),sha})});
+      if(p.ok){SY.last=Date.now();SY.err='';break}
+      if((p.status===409||p.status===422)&&attempt===0)continue; // subor sa medzitym zmenil, skus znova
+      throw new Error(msg(p.status));
+    }
+    if(manual)toast('Synchronizované ✓');
+  }catch(e){
+    SY.err=e&&e.message&&!/fetch|network/i.test(e.message)?e.message:'Bez internetu – skúsim to neskôr.';
+    if(manual)toast('Synchronizácia zlyhala');
+  }finally{
+    syBusy=false;sySave();
+    const a=document.activeElement;
+    if(tab==='hist'&&!(a&&a.tagName==='INPUT'))render();
+    if(syAgain){syAgain=false;syncSoon()}
+  }
+}
+function vSync(){
+  const last=SY.last?new Date(SY.last).toLocaleString('sk-SK',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'}):'zatiaľ nie';
+  let h='<div class="card" style="margin-top:14px"><b>Automatická synchronizácia</b><div style="color:var(--mut);font-size:13px;margin:4px 0 10px">Po každom uložení sa záloha pošle do tvojho súkromného GitHub repozitára. Claude z nej raz týždenne pripraví ďalší plán.</div>';
+  if(SY.token){
+    h+=`<div style="font-size:14px">Repozitár: <b>${esc(SY.repo)}</b><br>Posledná synchronizácia: <b>${esc(last)}</b></div>`;
+    if(SY.err)h+=`<div style="color:var(--bad);font-size:13px;margin-top:6px">${esc(SY.err)}</div>`;
+    h+=`<div class="acts" style="margin-top:10px"><button class="btn sm" data-a="sync-now">Synchronizovať teraz</button><button class="btn sm dng" data-a="sync-off">${confirmK==='sync-off'?'Naozaj odpojiť?':'Odpojiť'}</button></div>`;
+  }else{
+    h+=`<label for="syr">Repozitár (meno/repozitár)</label><input class="tx" id="syr" value="${esc(SY.repo)}" autocomplete="off" autocapitalize="off" spellcheck="false">
+<label for="syt">Prístupový kľúč (token)</label><input class="tx" id="syt" type="password" placeholder="github_pat_…" autocomplete="off" autocapitalize="off" spellcheck="false">
+<div class="acts" style="margin-top:10px"><button class="btn sm" data-a="sync-save">Uložiť a synchronizovať</button></div>`;
+  }
+  return h+'</div>';
+}
+window.addEventListener('online',()=>syncSoon());
 
 /* ---------- pomocne ---------- */
 const $=s=>document.querySelector(s);
@@ -436,6 +490,7 @@ function vHist(){
     h+=`</ul><div class="acts"><button class="btn sm" data-a="hedit" data-id="${w.id}">Upraviť</button><button class="btn sm dng" data-a="hdel" data-id="${w.id}">${confirmK==='del:'+w.id?'Naozaj zmazať?':'Zmazať'}</button></div></div>`;
   });
   if(window.STANDALONE)h+=`<div class="card" style="margin-top:14px"><b>Záloha dát</b><div style="color:var(--mut);font-size:13px;margin:4px 0 10px">Dáta sú uložené len v tomto telefóne. Raz za čas si ich ulož do súboru.</div><div class="acts"><button class="btn sm" data-a="export">Stiahnuť zálohu</button><button class="btn sm" data-a="import">Obnoviť zo zálohy</button></div><input type="file" id="imp" accept=".json,application/json" style="display:none"></div>`;
+  if(window.STANDALONE)h+=vSync();
   h+=`<div class="note">${backend==='db'?'Dáta sa ukladajú do tvojho účtu a sú dostupné aj na iných zariadeniach.':'Dáta sa ukladajú len v tomto prehliadači.'}</div>`;
   return h;
 }
@@ -528,6 +583,13 @@ const act={
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='trening-zaloha-'+today()+'.json';
     document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast('Záloha stiahnutá')},
   import(){const f=$('#imp');if(f)f.click()},
+  'sync-save'(){const r=$('#syr').value.trim().replace(/^https?:\/\/github\.com\//,'').replace(/\/+$/,''),t=$('#syt').value.trim();
+    if(!/^[\w.-]+\/[\w.-]+$/.test(r)){toast('Zadaj repozitár v tvare meno/repozitár');return}
+    if(!t){toast('Vlož prístupový kľúč');$('#syt').focus();return}
+    SY.repo=r;SY.token=t;SY.err='';sySave();render();syncNow(true)},
+  'sync-now'(){syncNow(true)},
+  'sync-off'(){if(confirmK!=='sync-off'){confirmK='sync-off';render();return}
+    SY.token='';SY.last=0;SY.err='';sySave();confirmK=null;render();toast('Synchronizácia vypnutá')},
   'cal-nav'(b){let m=CAL.m+(+b.dataset.d),y=CAL.y;if(m<0){m=11;y--}if(m>11){m=0;y++}CAL={y,m};render()},
   'cal-day'(b){selDay=selDay===b.dataset.d?null:b.dataset.d;render()},
   'cal-clear'(){selDay=null;render()},
@@ -550,7 +612,7 @@ const act={
 document.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-a]');if(!b)return;
   const f=act[b.dataset.a];if(!f)return;
-  if(b.dataset.a!=='discard'&&b.dataset.a!=='hdel'&&b.dataset.a!=='del-ex'&&confirmK){confirmK=null}
+  if(b.dataset.a!=='discard'&&b.dataset.a!=='hdel'&&b.dataset.a!=='del-ex'&&b.dataset.a!=='sync-off'&&confirmK){confirmK=null}
   f(b,ev);
 });
 document.addEventListener('change',ev=>{
@@ -614,6 +676,7 @@ document.addEventListener('input',ev=>{
 
 if(window.STANDALONE&&'serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 render();
+syncSoon(); // po otvoreni posli aktualny stav (aj novo pridane plany)
 </script>
 </body>
 </html>
